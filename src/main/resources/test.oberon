@@ -1,0 +1,20 @@
+MODULE SimpleModule;
+
+VAR
+  x: INTEGER;
+  y: INTEGER;
+
+BEGIN
+  x := 0;
+  y := 0;
+  LOOP
+    x := x + 1;
+    IF x > 5 THEN
+      EXIT
+    END;
+    y := y - 1
+  END;
+  x := 0 - 1
+END
+
+END SimpleModule.

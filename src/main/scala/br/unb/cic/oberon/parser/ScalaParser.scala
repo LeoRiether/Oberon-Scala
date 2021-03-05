@@ -6,6 +6,7 @@ import br.unb.cic.oberon.parser.OberonParser.StatementContext
 
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
+import br.unb.cic.oberon.parser.OberonParser.ExitStmtContext
 
 /**
  * A parser for the Oberon language using
@@ -437,6 +438,16 @@ class ParserVisitor {
       val visitor = new ExpressionVisitor()
       ctx.exp.accept(visitor)
       stmt = ReturnStmt(visitor.exp)
+    }
+
+    override def visitLoopStmt(ctx: OberonParser.LoopStmtContext): Unit = {
+      ctx.stmt.accept(this)
+      val block = stmt
+      stmt = LoopStmt(block)
+    }
+
+    override def visitExitStmt(ctx: ExitStmtContext): Unit = {
+      stmt = ExitStmt()
     }
   }
 
