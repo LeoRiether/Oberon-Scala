@@ -1,6 +1,6 @@
 package br.unb.cic.oberon.tc
 
-import br.unb.cic.oberon.ast.{AddExpression, AndExpression, ArrayType, AssignmentStmt, BoolValue, BooleanType, Brackets, CaseStmt, Constant, DivExpression, EQExpression, ElseIfStmt, Expression, FieldAccessExpression, ForStmt, FormalArg, GTEExpression, GTExpression, IfElseIfStmt, IfElseStmt, IntValue, IntegerType, LTEExpression, LTExpression, MultExpression, NEQExpression, OberonModule, OrExpression, Procedure, ProcedureCallStmt, RangeCase, ReadIntStmt, RecordType, ReferenceToUserDefinedType, RepeatUntilStmt, ReturnStmt, SequenceStmt, SimpleCase, Statement, SubExpression, Type, Undef, UndefinedType, VarExpression, VariableDeclaration, WhileStmt, WriteStmt}
+import br.unb.cic.oberon.ast._
 import br.unb.cic.oberon.environment.Environment
 import br.unb.cic.oberon.visitor.{OberonVisitor, OberonVisitorAdapter}
 
@@ -66,7 +66,7 @@ class TypeChecker extends OberonVisitorAdapter {
     module.constants.map(c => env.setGlobalVariable(c.name, c.exp.accept(expVisitor).get))
     module.variables.map(v => env.setGlobalVariable(v.name, v.variableType))
     module.procedures.map(p => env.declareProcedure(p))
-    module.userTypes.map(u => env.addUserDefinedType(u)) //added G04
+    module.userTypes.map(u => env.addUserDefinedType(u))
 
     // TODO: check if the procedures are well typed.
 
@@ -81,10 +81,12 @@ class TypeChecker extends OberonVisitorAdapter {
     case WhileStmt(_, _) => visitWhileStmt(stmt)
     case RepeatUntilStmt(_, _) => visitRepeatUntilStmt(stmt)
     case ForStmt(_, _, _) => visitForStmt(stmt)
+    case LoopStmt(_) => visitLoopStmt(stmt)
     case ProcedureCallStmt(_, _) => procedureCallStmt(stmt)
     case CaseStmt(_, _, _) => visitSwitchStmt(stmt)
     case SequenceStmt(stmts) => stmts.flatMap(s => s.accept(this))
     case ReturnStmt(exp) => if(exp.accept(expVisitor).isDefined) List() else List((stmt, s"Expression $exp is ill typed."))
+    case ExitStmt(exp) =>
     case ReadIntStmt(v) => if(env.lookup(v).isDefined) List() else List((stmt, s"Variable $v not declared."))
     case WriteStmt(exp) => if(exp.accept(expVisitor).isDefined) List() else List((stmt, s"Expression $exp is ill typed."))
   }
@@ -129,6 +131,10 @@ class TypeChecker extends OberonVisitorAdapter {
       else List((stmt, s"Expression $condition does not have a boolean type"))
   }
 
+  private def visitLoopStmt(stmt: Statement) = stmt match  {
+    case LoopStmt(stmts) => stmts.accept(this)
+  }
+
   private def visitWhileStmt(stmt: Statement) = stmt match {
     case WhileStmt(condition, stmt) =>
       if(condition.accept(expVisitor).contains(BooleanType)) {
@@ -159,31 +165,28 @@ class TypeChecker extends OberonVisitorAdapter {
     case CaseStmt(exp, cases, elseStmt) =>
       if(exp.accept(expVisitor).contains(IntegerType)){
       var list2 = List[(br.unb.cic.oberon.ast.Statement, String)]()
-        cases.foreach (c =>
-          c match {
-            case SimpleCase(condition, stmt1) =>
-              if(condition.accept(expVisitor).contains(IntegerType)) {
-                val list1 = stmt1.accept(this)
-                list1
-              }
-              else {
-                val list1 = List((stmt, s"Case value $condition does not have an integer type"))
-                list2 = list1 ++ list2
+        cases.foreach {
+          case SimpleCase(condition, stmt1) =>
+            if (condition.accept(expVisitor).contains(IntegerType)) {
+              val list1 = stmt1.accept(this)
+              list1
+            }
+            else {
+              val list1 = List((stmt, s"Case value $condition does not have an integer type"))
+              list2 = list1 ++ list2
 
-              }
+            }
 
-            case RangeCase(min, max, stmt2) =>
-              if(min.accept(expVisitor).contains(IntegerType) && max.accept(expVisitor).contains(IntegerType)){
-                val list1 = stmt2.accept(this)
-                list1
-              }
-              else {
-                val list1 = List((stmt, s"Min $min or max $max does not have an integer type"))
-                list2 = list1 ++ list2
-              }
-          }
-
-        )
+          case RangeCase(min, max, stmt2) =>
+            if (min.accept(expVisitor).contains(IntegerType) && max.accept(expVisitor).contains(IntegerType)) {
+              val list1 = stmt2.accept(this)
+              list1
+            }
+            else {
+              val list1 = List((stmt, s"Min $min or max $max does not have an integer type"))
+              list2 = list1 ++ list2
+            }
+        }
 
         val list3 = if(elseStmt.isDefined) elseStmt.get.accept(this) else List()
         list2 ++ list3

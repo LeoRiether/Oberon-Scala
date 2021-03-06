@@ -84,8 +84,10 @@ case class IfElseIfStmt(condition: Expression, thenStmt: Statement, elseifStmt: 
 case class ElseIfStmt(condition: Expression, thenStmt: Statement) extends Statement
 case class WhileStmt(condition: Expression, stmt: Statement) extends Statement
 case class RepeatUntilStmt(condition: Expression, stmt: Statement) extends Statement
+case class LoopStmt(sequenceStmt: SequenceStmt) extends Statement
 case class ForStmt(init: Statement, condition: Expression, stmt: Statement) extends Statement
 case class ReturnStmt(exp: Expression) extends Statement
+case class ExitStmt(expt: Expression) extends Statement
 case class CaseStmt(exp: Expression, cases: List[CaseAlternative], elseStmt: Option[Statement]) extends Statement
 
 trait CaseAlternative {

@@ -427,10 +427,27 @@ class ParserVisitor {
       stmt = ForStmt(init, condition, realBlock)
     }
 
+    override def visitLoopStmt(ctx: OberonParser.LoopStmtContext): Unit = {
+      val visitor = new ExpressionVisitor()
+
+      ctx.stmt.accept(this)
+      val block = stmt
+
+      val realBlock = SequenceStmt(List(block))
+
+      stmt = LoopStmt(realBlock)
+    }
+
     override def visitReturnStmt(ctx: OberonParser.ReturnStmtContext): Unit = {
       val visitor = new ExpressionVisitor()
       ctx.exp.accept(visitor)
       stmt = ReturnStmt(visitor.exp)
+    }
+
+    override def visitExitStmt(ctx : OberonParser.ExitStmtContext): Unit = {
+      val visitor = new ExpressionVisitor()
+      ctx.exp.accept(visitor)
+      stmt = ExitStmt(visitor.exp)
     }
   }
 
