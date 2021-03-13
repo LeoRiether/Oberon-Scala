@@ -3,6 +3,7 @@ package br.unb.cic.oberon.tc
 import br.unb.cic.oberon.ast._
 import br.unb.cic.oberon.environment.Environment
 import br.unb.cic.oberon.visitor.{OberonVisitor, OberonVisitorAdapter}
+import br.unb.cic.oberon.util.Values
 
 class ExpressionTypeVisitor(val typeChecker: TypeChecker) extends OberonVisitorAdapter {
   type T = Option[Type]
@@ -60,6 +61,7 @@ class TypeChecker extends OberonVisitorAdapter {
   type T = List[(Statement, String)]
 
   val env =  new Environment[Type]()
+  var loops = 0
   val expVisitor = new ExpressionTypeVisitor(this)
 
   override def visit(module: OberonModule): List[(Statement, String)] = {
@@ -86,7 +88,7 @@ class TypeChecker extends OberonVisitorAdapter {
     case CaseStmt(_, _, _) => visitSwitchStmt(stmt)
     case SequenceStmt(stmts) => stmts.flatMap(s => s.accept(this))
     case ReturnStmt(exp) => if(exp.accept(expVisitor).isDefined) List() else List((stmt, s"Expression $exp is ill typed."))
-    case ExitStmt(exp) =>
+    case ExitStmt() => if (loops == 0) List((stmt, "EXIT not in loop context")) else List()
     case ReadIntStmt(v) => if(env.lookup(v).isDefined) List() else List((stmt, s"Variable $v not declared."))
     case WriteStmt(exp) => if(exp.accept(expVisitor).isDefined) List() else List((stmt, s"Expression $exp is ill typed."))
   }
@@ -110,7 +112,7 @@ class TypeChecker extends OberonVisitorAdapter {
       }
       else List((stmt, s"Expression $condition does not have a boolean type"))
   }
-  
+
   private def visitIfElseIfStmt(stmt: Statement) = stmt match {
     case IfElseIfStmt(condition, thenStmt, elseIfStmt, elseStmt) =>
       if(condition.accept(expVisitor).contains(BooleanType)){
@@ -132,7 +134,11 @@ class TypeChecker extends OberonVisitorAdapter {
   }
 
   private def visitLoopStmt(stmt: Statement) = stmt match  {
-    case LoopStmt(stmts) => stmts.accept(this)
+    case LoopStmt(stmts) =>
+      loops += 1
+      val errors = stmts.accept(this)
+      loops -= 1
+      errors
   }
 
   private def visitWhileStmt(stmt: Statement) = stmt match {

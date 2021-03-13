@@ -445,9 +445,7 @@ class ParserVisitor {
     }
 
     override def visitExitStmt(ctx : OberonParser.ExitStmtContext): Unit = {
-      val visitor = new ExpressionVisitor()
-      ctx.exp.accept(visitor)
-      stmt = ExitStmt(visitor.exp)
+      stmt = ExitStmt()
     }
   }
 

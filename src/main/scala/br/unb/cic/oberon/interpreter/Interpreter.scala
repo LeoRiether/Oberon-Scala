@@ -25,6 +25,7 @@ class Interpreter extends OberonVisitorAdapter {
   type T = Unit
 
   val env = new Environment[Expression]()
+  var exit = false
   var printStream : PrintStream = new PrintStream(System.out)
 
   override def visit(module: OberonModule): Unit = {
@@ -66,7 +67,7 @@ class Interpreter extends OberonVisitorAdapter {
     // of a sequence of stmts. Whenever we achieve a
     // return stmt, we associate in the local variables
     // the name "return" to the return value.
-    if (env.lookup(Values.ReturnKeyWord).isDefined) {
+    if (env.lookup(Values.ReturnKeyWord).isDefined || exit) {
       return
     }
     // otherwise, we pattern-match on the current stmt.
@@ -89,10 +90,10 @@ class Interpreter extends OberonVisitorAdapter {
       case WhileStmt(condition, whileStmt) => while (evalCondition(condition)) whileStmt.accept(this)
       case RepeatUntilStmt(condition, repeatUntilStmt) => do (repeatUntilStmt.accept(this)) while (!evalCondition(condition))
       case ForStmt(init, condition, block) => init.accept(this); while (evalCondition(condition)) block.accept(this)
-      case LoopStmt(stmts) => stmts.accept(this)
+      case LoopStmt(stmts) => while (!exit) stmts.accept(this); exit = false
       case CaseStmt(exp, cases, elseStmt) => checkCaseStmt(exp, cases, elseStmt)
       case ReturnStmt(exp: Expression) => setReturnExpression(evalExpression(exp))
-      case ExitStmt(exp)
+      case ExitStmt() => exit = true
       case ProcedureCallStmt(name, args) =>
         // we evaluate the "args" in the current
         // environment.
