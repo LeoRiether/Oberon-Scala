@@ -491,7 +491,7 @@ class InterpreterTest extends AnyFunSuite {
     assert(interpreter.env.lookup("y") == Some(IntValue(40)));
 
   }
-  
+
   test("Testing RepeatUntil stmt on RepeatUntilStmt07 program") {
     val path = Paths.get(getClass.getClassLoader.getResource("stmts/RepeatUntilStmt07.oberon").getFile)
 
@@ -524,7 +524,7 @@ class InterpreterTest extends AnyFunSuite {
     assert(interpreter.env.lookup("y") == Some(IntValue(10)));
   }
 
-  ignore("Testing LoopStmt stmt on loop_stmt01 program") {
+  test("Testing LoopStmt stmt on loop_stmt01 program") {
     val path = Paths.get(getClass.getClassLoader.getResource("stmts/loop_stmt01.oberon").getFile)
 
     assert(path != null)
@@ -538,7 +538,7 @@ class InterpreterTest extends AnyFunSuite {
     assert(interpreter.env.lookup("x") == Some(IntValue(-1)))
   }
 
-  ignore("Testing LoopStmt stmt on loop_stmt02 program") {
+  test("Testing LoopStmt stmt on loop_stmt02 program") {
     val path = Paths.get(getClass.getClassLoader.getResource("stmts/loop_stmt02.oberon").getFile)
 
     assert(path != null)
