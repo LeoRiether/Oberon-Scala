@@ -23,7 +23,7 @@ class Environment[T] {
 
   private val global = Map.empty[String, T]
   private val stack = Stack.empty[Map[String, T]]
-  private val procedures = Map.empty[String, Procedure]
+  private val procedures = Map.empty[String, Procedure] ++ br.unb.cic.oberon.stdlib.StandardLibrary.procedures
   private val userDefinedTypes = Map.empty[String, UserDefinedType]
 
   private val userArrayTypes = Map.empty[String, ListBuffer[Expression]]

@@ -77,6 +77,7 @@ class TypeChecker extends OberonVisitorAdapter {
   }
 
   override def visit(stmt: Statement) = stmt match {
+    case ScalaStmt(_) => List()
     case AssignmentStmt(_, _) => visitAssignment(stmt)
     case IfElseStmt(_, _, _) => visitIfElseStmt(stmt)
     case IfElseIfStmt(_, _, _, _) => visitIfElseIfStmt(stmt)

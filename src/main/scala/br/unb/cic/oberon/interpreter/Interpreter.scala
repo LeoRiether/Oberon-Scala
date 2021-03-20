@@ -81,6 +81,7 @@ class Interpreter extends OberonVisitorAdapter {
           case _ => ???
         }
       }
+      case ScalaStmt(fn) => fn(env)
       case AssignmentStmt(name, exp) => env.setVariable(name, evalExpression(exp))
       case SequenceStmt(stmts) => stmts.foreach(s => s.accept(this))
       case ReadIntStmt(name) => env.setVariable(name, IntValue(StdIn.readLine().toInt))

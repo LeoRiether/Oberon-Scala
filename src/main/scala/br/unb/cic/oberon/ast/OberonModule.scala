@@ -1,6 +1,7 @@
 package br.unb.cic.oberon.ast
 
 import br.unb.cic.oberon.visitor.OberonVisitor
+import br.unb.cic.oberon.environment.Environment
 
 /* Abstract representation of an Oberon Module */
 case class OberonModule(name: String,
@@ -73,6 +74,7 @@ trait Statement {
   def accept(v: OberonVisitor) = v.visit(this)
 }
 
+case class ScalaStmt(fn: Environment[Expression] => Unit) extends Statement
 case class AssignmentStmt(varName: String, exp: Expression) extends Statement
 case class EAssignmentStmt(designator: AssignmentAlternative, exp: Expression) extends Statement
 case class SequenceStmt(stmts: List[Statement]) extends Statement

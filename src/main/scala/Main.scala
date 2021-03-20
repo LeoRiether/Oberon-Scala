@@ -24,47 +24,31 @@ object Main extends App {
   }
 
   val content = """
-    MODULE MyModule;
+MODULE Multiples;
 
-    VAR
-      x: INTEGER;
-      y: INTEGER;
 
-    BEGIN
-      x := 0;
-      LOOP
-        x := x + 1;
-        IF x > 5 THEN
-          EXIT
-        END;
+VAR
+  x : INTEGER;
 
-        y := 0;
-        LOOP
-          y := y + 1;
-          IF y > 5 THEN
-            EXIT
-          END;
-          write(y)
-        END;
+BEGIN
+  x := ODD(11);
+  write(x)
+END
 
-        write(x)
-      END;
-      x := 0 - 1;
-      write(x)
-
-    END
-
-    END MyModule.
+END Multiples.
   """
 
   val module = ScalaParser.parse(content)
   // pprint(module)
 
-  val tc = new TypeChecker
-  val errors = tc.visit(module)
-  println(errors)
+  // val tc = new TypeChecker
+  // val errors = tc.visit(module)
+  // println(errors)
 
   val interpreter = new Interpreter
-  interpreter.visit(module)
+
+  module.accept(interpreter)
+  // pprint(interpreter.env.lookup("x")) // 6
+  // pprint(interpreter.env.lookup("factorial")) // 120
 
 }
