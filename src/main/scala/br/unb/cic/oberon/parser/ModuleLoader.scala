@@ -4,12 +4,13 @@ import org.antlr.v4.runtime._
 import br.unb.cic.oberon.util.Resources
 import br.unb.cic.oberon.ast.OberonModule
 
+import scala.io.Source
+
 /** Loads/Parses a module along with the whole tree of imported modules */
 class ModuleLoader {
 
     var main: Option[String] = None
-    //var modules = Map.empty[String, OberonModule]
-    var modules = Set[String] 
+    var modules = Map.empty[String, OberonModule]
     var readFiles = Set.empty[String]
 
     // TODO: handle case where `file` does not exist or we can't get the content
@@ -19,7 +20,6 @@ class ModuleLoader {
         }
 
         // Read and parse `file`
-        //A.oberon
         readFiles += file
         val input = getContent(file)
         val module = ScalaParser.parse(input)
@@ -39,14 +39,15 @@ class ModuleLoader {
     }
 
     def add(module: OberonModule) = {
-        //modules += module.name -> module
-        modules += module.name
+        modules += module.name -> module
     }
 
     protected def getContent(file: String): String = {
-        var content : String
+        // read file
+        
+        var content = ""
         for (line <- Source.fromFile(file).getLines) {
-            content += line 
+            content += line
         }
         return content
     }
