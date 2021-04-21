@@ -60,8 +60,8 @@ expression
  : '(' expression ')'                                                                     #Brackets
  | intValue                                                                               #IntegerValue
  | boolValue                                                                              #BooleanValue
-// | name = String                                                                   #Variable
-// | name = String '(' arguments? ')'                                                #FunctionCall
+ | name = Id                                                                   #Variable
+ | name = Id '(' arguments? ')'                                                #FunctionCall
  | exp = expression '.' name = Id                                                         #FieldAccess
  | arrayBase = expression '[' index = expression ']'                                      #ArraySubscript
  | left = expression opr = ('=' | '#' | '<' | '<=' | '>' | '>=')  right = expression      #RelExpression
